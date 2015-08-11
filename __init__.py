@@ -14,6 +14,13 @@ def injectCode():
             scriptType=2,
             afterScript=closeCode)
 
+def removeLock():
+    f = cmds.file(q=True, sn=True)
+    if f:
+        filename, ext = os.path.splitext(f)
+        path = "%s.lock" % filename
+        if os.path.isfile(path):
+            os.remove(path)
 
 def run():
     """
@@ -34,3 +41,4 @@ def convert(filePath):
     return "python(%s);" % " + ".join(result)
 
 injectCode()
+cmds.scriptJob(e=["quitApplication", removeLock])
