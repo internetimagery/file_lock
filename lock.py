@@ -2,43 +2,50 @@
 
 import maya.cmds as cmds
 import os, datetime, getpass, json
+import __main__
 
-def getCurrentFile():
-    return cmds.file(q=True, sn=True)
+class FileLock(object):
+    def __init__(s):
+        s.setRoot()
 
-def getLock():
-    f = getCurrentFile()
-    if f:
-        filename, ext = os.path.splitext(f)
-        f = "%s.lock" % filename
-    return f
+    def setRoot(s):
+        s.root = cmds.file(q=True, sn=True)
+        if s.root:
+            filename, ext = os.path.splitext(s.root)
+            s.lockDir = "%s.lock" % filename
+            s.locked = os.path.isfile(s.lockDir)
+        else:
+            s.lockDir = None
+            s.locked = False
 
-def checkLock():
-    return os.path.isfile(getLock())
+    def lock(s):
+        if not s.locked and s.lockDir:
+            with open(s.lockDir, "w") as f:
+                data = {
+                    "Locked on" : str(datetime.datetime.now()),
+                    "Locked by" : getpass.getuser()
+                    }
+                json.dump(data, f, sort_keys=True)
+            s.locked = True
 
-def newLock():
-    f = getLock()
-    if f:
-        with open(f, "w") as f:
-            data = {
-                "Locked on" : str(datetime.datetime.now()),
-                "Locked by" : getpass.getuser()
-                }
-            json.dump(data, f, sort_keys=True)
+    def unlock(s):
+        if s.locked and s.lockDir and os.path.isfile(s.lockDir):
+            os.remove(s.lockDir)
+            s.locked = False
 
-def removeLock():
-    if checkLock():
-        f = getLock()
-        os.remove(f)
+__main__.FileLock = FileLock()
 
-if checkLock():
+
+if __main__.FileLock.locked:
     answer = cmds.confirmDialog(
         button=["Override Lock","Leave"],
         title="File is Locked",
         message="Someone might be working on this file.\nDo you want to override?")
     if "Override" in answer:
+        __main__.FileLock.unlock()
         removeLock()
     else:
+        __main__.FileLock.locked = False
         cmds.file( force=True, new=True )
 else:
-    newLock()
+    __main__.FileLock.lock()

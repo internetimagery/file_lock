@@ -1,6 +1,7 @@
 # Lock maya file while in use
 
 import maya.cmds as cmds
+import os
 
 root = os.path.dirname(os.path.realpath(__file__))
 
@@ -39,3 +40,4 @@ injectCode()
 cmds.scriptJob(e=["PostSceneRead", injectCode])
 cmds.scriptJob(e=["NewSceneOpened", injectCode])
 cmds.scriptJob(e=["quitApplication", removeLock])
+import file_lock.lock
