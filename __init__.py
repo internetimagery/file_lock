@@ -8,10 +8,12 @@ def injectCode():
     scriptID = "File_Locker"
     if not cmds.objExists(scriptID):
         loadCode = "print \"hello\""
+        openCode = convert(os.path.join(root, "lock.py"))
         closeCode = convert(os.path.join(root, "unlock.py"))
         cmds.scriptNode(
             name=scriptID,
             scriptType=2,
+            beforeScript=openCode,
             afterScript=closeCode)
 
 def removeLock():
@@ -22,13 +24,6 @@ def removeLock():
         if os.path.isfile(path):
             os.remove(path)
 
-def run():
-    """
-    Run the script
-    """
-    process = cmds.scriptJob(e=["SceneSaved", insertCode])
-    print "File Locker is running."
-
 def convert(filePath):
     """
     Convert python to mel
@@ -37,8 +32,10 @@ def convert(filePath):
     if os.path.isfile(filePath):
         with open(filePath, "r") as f:
             for data in f.readlines():
-                result.append("\"%s\"\n" % data.replace("\"", "\\\"").replace("\n", "\\n"))
+                result.append("\"%s\"\n" % data.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n"))
     return "python(%s);" % " + ".join(result)
 
 injectCode()
+cmds.scriptJob(e=["PostSceneRead", injectCode])
+cmds.scriptJob(e=["NewSceneOpened", injectCode])
 cmds.scriptJob(e=["quitApplication", removeLock])
