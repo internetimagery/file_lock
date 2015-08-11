@@ -3,40 +3,35 @@
 import maya.cmds as cmds
 import os, datetime, getpass, json
 
-class Lock(object):
-    """
-    Lock file for a single user
-    """
-    def __init__(s):
-        s.setRoot()
+def getCurrentFile():
+    return cmds.file(q=True, sn=True)
 
-    def setRoot(s):
-        s.root = cmds.file(q=True, sn=True)
+def getLock():
+    f = getCurrentFile()
+    if f:
+        filename, ext = os.path.splitext(f)
+        f = "%s.lock" % f
+    return f
 
-    def getLock(s):
-        if s.root:
-            filename, ext = os.path.splitext(s.root)
-            return os.path.join("%s.lock" % filename)
-        return None
+def checkLock():
+    return os.path.isfile(getLock())
 
-    def check(s):
-        """
-        Check if file is locked
-        """
-        return os.path.isfile(s.getLock())
-
-    def lock(s):
-        """
-        Lock the file
-        """
-        lockPath = s.getLock()
-        if lockPath and not os.path.isfile(lockPath):
+def newLock():
+    f = getLock()
+    if f:
+        with open(f, "w") as f:
             data = {
                 "Locked on" : str(datetime.datetime.now()),
                 "Locked by" : getpass.getuser()
-            }
-            with open(lockPath, "w") as f:
-                json.dump(data, f, sort_keys=True)
+                }
+            json.dump(data, f, sort_keys=True)
+
+def removeLock():
+    if checkLock():
+        f = getLock()
+        os.remove(f)
 
 
-l = Lock()
+
+# cmds.scriptJob(e=["PostSceneRead", s.test])
+# cmds.scriptJob(e=["NewSceneOpened", s.test])

@@ -2,10 +2,17 @@
 
 import maya.cmds as cmds
 
-scriptID = "File_Locker"
-def insertCode():
-    code = "print \"HEllo world!!\""
-    job = cmds.scriptNode(n=scriptID, st=2, bs=code)
+root = os.path.dirname(os.path.realpath(__file__))
+
+def injectCode():
+    scriptID = "File_Locker"
+    if not cmds.objExists(scriptID):
+        loadCode = "print \"hello\""
+        closeCode = convert(os.path.join(root, "unlock.py"))
+        cmds.scriptNode(
+            name=scriptID,
+            scriptType=2,
+            afterScript=closeCode)
 
 
 def run():
@@ -17,7 +24,7 @@ def run():
 
 def convert(filePath):
     """
-    Convert file to maya
+    Convert python to mel
     """
     result = []
     if os.path.isfile(filePath):
@@ -26,7 +33,4 @@ def convert(filePath):
                 result.append("\"%s\"\n" % data.replace("\"", "\\\"").replace("\n", "\\n"))
     return "python(%s);" % " + ".join(result)
 
-root = os.path.dirname(os.path.realpath(__file__))
-script = os.path.join(root, "lock.py")
-
-print convert(script)
+injectCode()
