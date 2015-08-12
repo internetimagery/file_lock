@@ -27,11 +27,13 @@ class FileLock(object):
                     }
                 json.dump(data, f, sort_keys=True)
             s.locked = True
+            print "File locked."
 
     def unlock(s):
         if s.locked and s.lockDir and os.path.isfile(s.lockDir):
             os.remove(s.lockDir)
             s.locked = False
+            print "File unlocked."
 
 __main__.FileLock = FileLock()
 cmds.scriptjob(["quitApplication", __main__.FileLock.unlock])
