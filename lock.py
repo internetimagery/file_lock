@@ -34,13 +34,20 @@ class FileLock(object):
             s.locked = False
 
 __main__.FileLock = FileLock()
+cmds.scriptjob(["quitApplication", __main__.FileLock.unlock])
 
 
 if __main__.FileLock.locked:
+    try:
+        with open(__main__.FileLock.lockDir, "r") as f:
+            details = json.load(f)
+            message = "%(user)s locked this file at %(time)s and may be currently working on it.\nDo you wish to overide?" % {"user" : details["Locked by"], "time" : details["Locked on"]}
+    except ValueError:
+        message = "Someone might be working on this file.\nDo you want to override?"
     answer = cmds.confirmDialog(
         button=["Override Lock","Leave"],
         title="File is Locked",
-        message="Someone might be working on this file.\nDo you want to override?")
+        message=message)
     if "Override" in answer:
         __main__.FileLock.unlock()
         removeLock()
