@@ -7,7 +7,7 @@ root = os.path.dirname(os.path.realpath(__file__))
 
 def injectCode():
     scriptID = "File_Locker"
-    if not cmds.objExists(scriptID):
+    if not cmds.objExists(scriptID) or True:
         loadCode = "print \"hello\""
         openCode = convert(os.path.join(root, "lock.py"))
         closeCode = convert(os.path.join(root, "unlock.py"))
@@ -16,6 +16,7 @@ def injectCode():
             scriptType=2,
             beforeScript=openCode,
             afterScript=closeCode)
+        print "Injecting Lock Code"
 
 def removeLock():
     f = cmds.file(q=True, sn=True)
@@ -29,11 +30,13 @@ def convert(filePath):
     """
     Convert python to mel
     """
-    result = []
+    result = ["# Line above all others\\n"]
     if os.path.isfile(filePath):
         with open(filePath, "r") as f:
             for data in f.readlines():
-                result.append("\"%s\"\n" % data.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n"))
+                result.append("\"%s\"\n" % data.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", ""))
+    print result
+        # data.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n"
     return "python(%s);" % " + ".join(result)
 
 import file_lock.lock
