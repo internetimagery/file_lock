@@ -6,7 +6,8 @@ from datetime import datetime
 from getpass import getuser
 from json import load, dump
 from os.path import isfile
-import __main__
+from os import remove
+# import __main__
 
 # if not hasattr(__main__, "FileLockCallbacks"):
 #     __main__.FileLockCallbacks = []
@@ -15,15 +16,14 @@ import __main__
 # else:
 #     print "CAllbacks already set"
 
-def SaveAsCheck():
-    lockDir = "%s.lock" % root
-    if root and isfile(lockDir):
-        print "We should be removing the lock here"
-    else:
-        print "Do not remove lock!"
+def SaveAsUnlock():
+    lockFile = "%s.lock" % root
+    if root and isfile(lockFile):
+        remove(lockFile)
+        print "Lock Released"
     cmds.scriptNode("File_Locker", eb=True)
 
-cmds.scriptJob(e=["SceneSaved", SaveAsCheck], kws=True, ro=True)
+cmds.scriptJob(e=["SceneSaved", SaveAsUnlock], kws=True, ro=True)
 
 root = cmds.file(q=True, sn=True)
 if root:
