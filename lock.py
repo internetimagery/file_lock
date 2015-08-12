@@ -1,9 +1,29 @@
 # Lock Maya files so only one person can use at a time.
 
 import maya.cmds as cmds
+# import maya.api.OpenMaya as om
 from datetime import datetime
 from getpass import getuser
 from json import load, dump
+from os.path import isfile
+import __main__
+
+# if not hasattr(__main__, "FileLockCallbacks"):
+#     __main__.FileLockCallbacks = []
+#     __main__.FileLockCallbacks.append(om.MSceneMessage.addCallback(om.MSceneMessage.kBeforeSave, lambda x: cmds.scriptNode("File_Locker", ea=True)))
+#     __main__.FileLockCallbacks.append(om.MSceneMessage.addCallback(om.MSceneMessage.kAfterSave,  lambda x: cmds.scriptNode("File_Locker", eb=True)))
+# else:
+#     print "CAllbacks already set"
+
+def SaveAsCheck():
+    lockDir = "%s.lock" % root
+    if root and isfile(lockDir):
+        print "We should be removing the lock here"
+    else:
+        print "Do not remove lock!"
+    cmds.scriptNode("File_Locker", eb=True)
+
+cmds.scriptJob(e=["SceneSaved", SaveAsCheck], kws=True, ro=True)
 
 root = cmds.file(q=True, sn=True)
 if root:

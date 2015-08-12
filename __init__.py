@@ -17,6 +17,7 @@ def injectCode():
             scriptType=2,
             beforeScript=openCode,
             afterScript=closeCode)
+        cmds.scriptNode(scriptID, eb=True)
         print "Injecting Lock Code"
 
 def removeLock():
@@ -45,7 +46,6 @@ def convert(filePath):
                 result.append(escape("    " + data))
     return "python(%s);" % " + \n".join(result)
 
-cmds.scriptJob(e=["SceneSaved", lambda: cmds.scriptNode(scriptID, eb=True)])
 cmds.scriptJob(e=["PostSceneRead", injectCode])
 cmds.scriptJob(e=["NewSceneOpened", injectCode])
 injectCode()
