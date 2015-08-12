@@ -10,8 +10,8 @@ def injectCode():
     uid = time.time()
     if not cmds.objExists(scriptID):
         loadCode = "print \"hello\""
-        openCode = convert(os.path.join(root, "lock.py"), uid)
-        closeCode = convert(os.path.join(root, "unlock.py"), uid)
+        openCode = convert(os.path.join(root, "lock.py"))
+        closeCode = convert(os.path.join(root, "unlock.py"))
         cmds.scriptNode(
             name=scriptID,
             scriptType=2,
@@ -28,12 +28,14 @@ def removeLock():
         if os.path.isfile(path):
             os.remove(path)
 
-def convert(filePath, uid):
+def convert(filePath):
     """
     Convert python to mel
     """
     def escape(text):
         return "\"%s\"" % text.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "")
+    uid = cmds.fileInfo("FileUID", q=True)
+    uid = uid[0] if uid else "UID ERROR"
     result = []
     result.append(escape("import maya.cmds as cmds\n"))
     result.append(escape("fileID = cmds.fileInfo(\"FileUID\", q=True)\n"))
