@@ -8,12 +8,12 @@ class FileLock(object):
     def __init__(s):
         s.setRoot()
         s.user = getpass.getuser()
+        s.version = 0.3
 
     def setRoot(s):
         s.root = cmds.file(q=True, sn=True)
         if s.root:
-            filename, ext = os.path.splitext(s.root)
-            s.lockDir = "%s.lock" % filename
+            s.lockDir = "%s.lock" % s.root
             s.locked = os.path.isfile(s.lockDir)
         else:
             s.lockDir = None
@@ -28,13 +28,13 @@ class FileLock(object):
                     }
                 json.dump(data, f, sort_keys=True)
             s.locked = True
-            print "File locked."
+            print "File locked. ( File Locker Version %s)" % s.version
 
     def unlock(s):
         if s.locked and s.lockDir and os.path.isfile(s.lockDir):
             os.remove(s.lockDir)
             s.locked = False
-            print "File unlocked."
+            print "File unlocked. ( File Locker Version %s)" % s.version
 
 __main__.FileLock = FileLock()
 cmds.scriptJob(e=["quitApplication", __main__.FileLock.unlock], kws=True)
