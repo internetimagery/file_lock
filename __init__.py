@@ -37,6 +37,6 @@ def convert(filePath):
     return "python(%s);" % " + ".join(result)
 
 import file_lock.lock
-injectCode()
 cmds.scriptJob(e=["PostSceneRead", injectCode])
 cmds.scriptJob(e=["NewSceneOpened", injectCode])
+injectCode()
