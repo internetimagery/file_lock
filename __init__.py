@@ -36,8 +36,7 @@ def convert(filePath):
                 result.append("\"%s\"\n" % data.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n"))
     return "python(%s);" % " + ".join(result)
 
+import file_lock.lock
 injectCode()
 cmds.scriptJob(e=["PostSceneRead", injectCode])
 cmds.scriptJob(e=["NewSceneOpened", injectCode])
-cmds.scriptJob(e=["quitApplication", removeLock])
-import file_lock.lock
