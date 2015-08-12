@@ -36,8 +36,8 @@ class FileLock(object):
             print "File unlocked."
 
 __main__.FileLock = FileLock()
-cmds.scriptjob(e=["quitApplication", __main__.FileLock.unlock])
-cmds.scriptJob(e=["SceneSaved", __main.FileLock.lock], kws=True)
+cmds.scriptJob(e=["quitApplication", __main__.FileLock.unlock])
+cmds.scriptJob(e=["SceneSaved", __main__.FileLock.lock], kws=True)
 
 
 if __main__.FileLock.locked:
