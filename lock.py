@@ -21,20 +21,18 @@ class FileLock(object):
                     "time" : str(datetime.datetime.now()),
                     "user" : s.user
                     }
-                json.dump(data, f, sort_keys=True)
+                json.dump(data, f)
             print "File locked. (File Locker Version %s)" % s.version
 
     def unlock(s):
         lockDir = s.getLock()
-        if lockDir:
-            try:
-                os.remove(lockDir)
-                print "File unlocked. (File Locker Version %s)" % s.version
-            except OSError:
-                pass
+        if lockDir and os.path.isfile(lockDir):
+            os.remove(lockDir)
+            print "File unlocked. (File Locker Version %s)" % s.version
 
 __main__.FileLock = FileLock()
 cmds.scriptJob(e=["quitApplication", lambda: cmds.scriptNode("File_Locker", ea=True)], kws=True)
+# cmds.scriptJob(e=["SceneSaved", lambda: (__main__.FileLock.unlock(), __main__.FileLock.lock())], kws=True)
 
 try:
     with open(__main__.FileLock.lockDir, "r") as f:
