@@ -45,7 +45,8 @@ if __main__.FileLock.locked:
         with open(__main__.FileLock.lockDir, "r") as f:
             details = json.load(f)
             message = "%(user)s locked this file at %(time)s and may be currently working on it.\nDo you wish to overide?" % {"user" : details["Locked by"], "time" : details["Locked on"]}
-    except ValueError:
+    except:
+        print "Error loading LockFile text."
         message = "Someone might be working on this file.\nDo you want to override?"
     answer = cmds.confirmDialog(
         button=["Override Lock","Leave"],
