@@ -19,7 +19,7 @@ class FileLock(object):
             s.locked = False
 
     def lock(s):
-        if not s.locked and s.lockDir:
+        if s.lockDir:
             with open(s.lockDir, "w") as f:
                 data = {
                     "Locked on" : str(datetime.datetime.now()),
@@ -36,8 +36,11 @@ class FileLock(object):
             print "File unlocked."
 
 __main__.FileLock = FileLock()
-cmds.scriptJob(e=["quitApplication", __main__.FileLock.unlock])
-cmds.scriptJob(e=["SceneSaved", __main__.FileLock.lock], kws=True)
+def testing():
+    print "THIS SCENE WAS SAVED"
+    print __main__.FileLock.root
+    print cmds.file(q=True, sn=True)
+cmds.scriptJob(e=["quitApplication", __main__.FileLock.unlock], kws=True)
 
 
 if __main__.FileLock.locked:
