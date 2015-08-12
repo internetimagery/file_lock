@@ -7,6 +7,7 @@ import __main__
 class FileLock(object):
     def __init__(s):
         s.setRoot()
+        s.user = getpass.getuser()
 
     def setRoot(s):
         s.root = cmds.file(q=True, sn=True)
@@ -22,8 +23,8 @@ class FileLock(object):
         if s.lockDir:
             with open(s.lockDir, "w") as f:
                 data = {
-                    "Locked on" : str(datetime.datetime.now()),
-                    "Locked by" : getpass.getuser()
+                    "time" : str(datetime.datetime.now()),
+                    "user" : s.user
                     }
                 json.dump(data, f, sort_keys=True)
             s.locked = True
@@ -36,29 +37,23 @@ class FileLock(object):
             print "File unlocked."
 
 __main__.FileLock = FileLock()
-def testing():
-    print "THIS SCENE WAS SAVED"
-    print __main__.FileLock.root
-    print cmds.file(q=True, sn=True)
 cmds.scriptJob(e=["quitApplication", __main__.FileLock.unlock], kws=True)
 
-
-if __main__.FileLock.locked:
-    try:
-        with open(__main__.FileLock.lockDir, "r") as f:
-            details = json.load(f)
-            message = "%(user)s locked this file at %(time)s and may be currently working on it.\nDo you wish to overide?" % {"user" : details["Locked by"], "time" : details["Locked on"]}
-    except:
-        print "Error loading LockFile text."
-        message = "Someone might be working on this file.\nDo you want to override?"
-    answer = cmds.confirmDialog(
-        button=["Override Lock","Leave"],
-        title="File is Locked",
-        message=message)
-    if "Override" in answer:
-        __main__.FileLock.lock() # relock file
-    else:
-        __main__.FileLock.locked = False
-        cmds.file( force=True, new=True )
-else:
+try:
+    with open(__main__.FileLock.lockDir, "r") as f:
+        lockInfo = json.load(f)
+        if lockInfo["user"] == __main__.FileLock.user:
+            __main__.FileLock.lock()
+        else:
+            message = "%(user)s locked this file at %(time)s and may be currently working on it.\nDo you wish to overide?" % lockInfo
+            answer = cmds.confirmDialog(
+                button=["Override Lock","Leave"],
+                title="File is Locked",
+                message=message)
+            if "Override" in answer:
+                __main__.FileLock.lock()
+            else:
+                __main__.FileLock.locked = False
+                cmds.file( force=True, new=True )
+except:
     __main__.FileLock.lock()

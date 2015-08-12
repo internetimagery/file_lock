@@ -4,9 +4,9 @@ import maya.cmds as cmds
 import os, time
 
 root = os.path.dirname(os.path.realpath(__file__))
+scriptID = "File_Locker"
 
 def injectCode():
-    scriptID = "File_Locker"
     uid = time.time()
     if not cmds.objExists(scriptID):
         cmds.fileInfo("FileUID", uid)
@@ -46,6 +46,7 @@ def convert(filePath):
                 result.append(escape("    " + data))
     return "python(%s);" % " + \n".join(result)
 
+cmds.scriptJob(e=["SceneSaved", lambda: cmds.scriptNode(scriptID, eb=True)])
 cmds.scriptJob(e=["PostSceneRead", injectCode])
 cmds.scriptJob(e=["NewSceneOpened", injectCode])
 injectCode()
