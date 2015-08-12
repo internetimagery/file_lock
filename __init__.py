@@ -30,14 +30,12 @@ def convert(filePath):
     """
     Convert python to mel
     """
-    result = ["# Line above all others\\n"]
+    result = ["\"# Line above all others\\n\""]
     if os.path.isfile(filePath):
         with open(filePath, "r") as f:
             for data in f.readlines():
-                result.append("\"%s\"\n" % data.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", ""))
-    print result
-        # data.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n"
-    return "python(%s);" % " + ".join(result)
+                result.append("\"%s\"" % data.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", ""))
+    return "python(%s);" % " + \n".join(result)
 
 import file_lock.lock
 cmds.scriptJob(e=["PostSceneRead", injectCode])
