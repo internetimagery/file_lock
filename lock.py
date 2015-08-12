@@ -6,38 +6,35 @@ import __main__
 
 class FileLock(object):
     def __init__(s):
-        s.setRoot()
         s.user = getpass.getuser()
         s.version = 0.3
 
-    def setRoot(s):
-        s.root = cmds.file(q=True, sn=True)
-        if s.root:
-            s.lockDir = "%s.lock" % s.root
-            s.locked = os.path.isfile(s.lockDir)
-        else:
-            s.lockDir = None
-            s.locked = False
+    def getLock(s):
+        root = cmds.file(q=True, sn=True)
+        return "%s.lock" % root if root else None
 
     def lock(s):
-        if s.lockDir:
-            with open(s.lockDir, "w") as f:
+        lockDir = s.getLock()
+        if lockDir:
+            with open(lockDir, "w") as f:
                 data = {
                     "time" : str(datetime.datetime.now()),
                     "user" : s.user
                     }
                 json.dump(data, f, sort_keys=True)
-            s.locked = True
-            print "File locked. ( File Locker Version %s)" % s.version
+            print "File locked. (File Locker Version %s)" % s.version
 
     def unlock(s):
-        if s.locked and s.lockDir and os.path.isfile(s.lockDir):
-            os.remove(s.lockDir)
-            s.locked = False
-            print "File unlocked. ( File Locker Version %s)" % s.version
+        lockDir = s.getLock()
+        if lockDir:
+            try:
+                os.remove(lockDir)
+                print "File unlocked. (File Locker Version %s)" % s.version
+            except OSError:
+                pass
 
 __main__.FileLock = FileLock()
-cmds.scriptJob(e=["quitApplication", __main__.FileLock.unlock], kws=True)
+cmds.scriptJob(e=["quitApplication", lambda: cmds.scriptNode("File_Locker", ea=True)], kws=True)
 
 try:
     with open(__main__.FileLock.lockDir, "r") as f:

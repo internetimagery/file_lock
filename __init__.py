@@ -17,7 +17,6 @@ def injectCode():
             scriptType=2,
             beforeScript=openCode,
             afterScript=closeCode)
-        # cmds.scriptNode(scriptID, executeBefore=True)
         print "Injecting Lock Code"
 
 def removeLock():
