@@ -9,7 +9,7 @@ def injectCode():
     scriptID = "File_Locker"
     uid = time.time()
     if not cmds.objExists(scriptID):
-        loadCode = "print \"hello\""
+        cmds.fileInfo("FileUID", uid)
         openCode = convert(os.path.join(root, "lock.py"))
         closeCode = convert(os.path.join(root, "unlock.py"))
         cmds.scriptNode(
@@ -17,7 +17,6 @@ def injectCode():
             scriptType=2,
             beforeScript=openCode,
             afterScript=closeCode)
-        cmds.fileInfo("FileUID", uid)
         print "Injecting Lock Code"
 
 def removeLock():
