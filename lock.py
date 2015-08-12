@@ -3,7 +3,6 @@
 import maya.cmds as cmds
 from datetime import datetime
 from getpass import getuser
-from os.path import isfile
 from json import load, dump
 
 import sys
@@ -36,6 +35,5 @@ if root:
                 else:
                     cmds.fileInfo("FileUID", "Not even oww")
                     cmds.file( force=True, new=True )
-    except:
-        print sys.exc_info()
+    except IOError:
         Lock()
