@@ -51,8 +51,7 @@ if __main__.FileLock.locked:
         title="File is Locked",
         message=message)
     if "Override" in answer:
-        __main__.FileLock.unlock()
-        removeLock()
+        __main__.FileLock.lock() # relock file
     else:
         __main__.FileLock.locked = False
         cmds.file( force=True, new=True )
