@@ -6,6 +6,7 @@ from datetime import datetime
 from getpass import getuser
 from json import load, dump
 from os.path import isfile
+from uuid import uuid4
 from os import remove
 # import __main__
 
@@ -15,6 +16,8 @@ from os import remove
 #     __main__.FileLockCallbacks.append(om.MSceneMessage.addCallback(om.MSceneMessage.kAfterSave,  lambda x: cmds.scriptNode("File_Locker", eb=True)))
 # else:
 #     print "CAllbacks already set"
+def uid():
+    return "%s-%s" % (getuser(), uuid4())
 
 def SaveAsUnlock():
     lockFile = "%s.lock" % root
@@ -31,9 +34,10 @@ if root:
     try:
         with open("%s.lock" % root, "r") as f:
             lockInfo = load(f)
-            if lockInfo["user"] == getuser():
+            if lockInfo["user"] == uid():
                 raise IOError, "Locked by same user"
             else:
+                lockInfo["user"] = lockInfo["user"].split("-")[0]
                 message = "%(user)s locked this file at %(time)s and may be currently working on it.\nDo you wish to overide?" % lockInfo
                 answer = cmds.confirmDialog(
                     button=["Override Lock","Leave"],
