@@ -42,10 +42,15 @@ if root:
                 past = datetime.utcnow() - datetime.strptime(lockInfo["time"], timeFormat)
                 seconds = past.seconds
                 if 0 < seconds:
-                    print seconds
+                    if seconds < 60:
+                        lockInfo["time"] = "%d seconds ago" % seconds
+                    elif seconds < 3600:
+                        lockInfo["time"] = "%d minutes ago" % (seconds / 60)
+                    else:
+                        lockInfo["time"] = "%d hours ago" % (seconds / 3600)
                 else:
-                    lockInfo["time"] = "Unspecified"
-                message = "%(user)s locked this file at %(time)s and may be currently working on it.\nDo you wish to overide?" % lockInfo
+                    lockInfo["time"] = "at an unspecified time"
+                message = "%(user)s locked this file %(time)s, and may be currently working on it.\nDo you wish to overide?" % lockInfo
                 answer = cmds.confirmDialog(
                     button=["Override Lock","Leave"],
                     title="File is Locked",
