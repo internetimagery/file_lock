@@ -29,6 +29,7 @@ def SaveAsUnlock():
 cmds.scriptJob(e=["SceneSaved", SaveAsUnlock], kws=True, ro=True)
 
 root = cmds.file(q=True, sn=True)
+timeFormat = "%Y-%m-%d %H:%M:%S"
 if root:
     cmds.scriptJob(e=["quitApplication", lambda: cmds.scriptNode("File_Locker", ea=True)], kws=True)
     try:
@@ -38,6 +39,12 @@ if root:
                 raise IOError, "Locked by same user"
             else:
                 lockInfo["user"] = lockInfo["user"].split("-")[0]
+                past = datetime.utcnow() - datetime.strptime(lockInfo["time"], timeFormat)
+                seconds = past.seconds
+                if 0 < seconds:
+                    print seconds
+                else:
+                    lockInfo["time"] = "Unspecified"
                 message = "%(user)s locked this file at %(time)s and may be currently working on it.\nDo you wish to overide?" % lockInfo
                 answer = cmds.confirmDialog(
                     button=["Override Lock","Leave"],
@@ -51,7 +58,7 @@ if root:
     except IOError, ValueError:
         with open("%s.lock" % root, "w") as f:
             data = {
-                "time" : str(datetime.now()),
+                "time" : datetime.strftime(datetime.utcnow(), timeFormat),
                 "user" : getuser()
                 }
             dump(data, f)
